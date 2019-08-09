@@ -14,18 +14,28 @@ var videoUrls = [
   "https://www.mapbox.com/bites/00188/patricia_nasa.webm",
   'https://www.mapbox.com/bites/00188/patricia_nasa.mp4'
 ];
-var videoElement = '<video controls autoplay muted loop width="150" height="100"> <source src="https://www.mapbox.com/bites/00188/patricia_nasa.mp4" type="video/mp4"> </video>';
+// var videoElement = '<video controls autoplay muted loop width="150" height="100"> <source src="https://www.mapbox.com/bites/00188/patricia_nasa.mp4" type="video/mp4"> </video>';
 var bounds = L.latLngBounds([[32, -130], [13, -100]]);
 
 map.fitBounds(bounds);
 
-// adding video overlay to map
+// creating video layer
 var overlay = L.videoOverlay(videoUrls, bounds, {
   opacity: 0.8,
   interactive: true
 });
-map.addLayer(overlay);
 
+// showing controls for video
+overlay.on('load', function () {
+  // overlay.getElement().setAttribute("controls", "true"); // = true;
+  // overlay.getElement().controls = 'true';
+  overlay.getElement().setAttribute('controls','');
+  overlay.getElement().setAttribute('muted','');
+  overlay.getElement().setAttribute('autoplay','');
+});
+
+// adding video overlay to map
+map.addLayer(overlay);
 
 // L.EditControl = L.Control.extend({
 //   options: {
@@ -62,57 +72,58 @@ map.addLayer(overlay);
 // });
 
 
-// var stateChangingButton = L.easyButton({
-//   states: [{
-//     stateName: 'zoom-to-forest',        // name the state
-//     icon:      'fa-tree',               // and define its properties
-//     title:     'zoom to a forest',      // like its title
-//     onClick: function(btn, map) {       // and its callback
-//       map.setView([46.25,-121.8],10);
-//       btn.state('zoom-to-school');    // change state on click!
-//     }
-//   }, {
-//     stateName: 'zoom-to-school',
-//     icon:      'fa-university',
-//     title:     'zoom to a school',
-//     onClick: function(btn, map) {
-//         map.setView([42.3748204,-71.1161913],16);
-//         btn.state('zoom-to-forest');
-//     }
-//   }]
-// });
-
-// stateChangingButton.addTo( YOUR_LEAFLET_MAP );
-
-overlay.on('load', function () {
-    var MyPauseControl = L.Control.extend({
-        onAdd: function() {
-            var button = L.DomUtil.create('button');
-            button.innerHTML = '⏸';
-            L.DomEvent.on(button, 'click', function () {
-                videoOverlay.getElement().pause();
-            });
-            return button;
-        }
-    });
-    var MyPlayControl = L.Control.extend({
-        onAdd: function() {
-            var button = L.DomUtil.create('button');
-            button.innerHTML = '⏵';
-            L.DomEvent.on(button, 'click', function () {
-                videoOverlay.getElement().play();
-            });
-            return button;
-        }
-    });
-
-    var pauseControl = (new MyPauseControl()).addTo(map);
-    var playControl = (new MyPlayControl()).addTo(map);
+var stateChangingButton = L.easyButton({
+  states: [{
+    stateName: 'pause',        // name the state
+    icon:      'fa-pause',               // and define its properties
+    title:     'pause video',      // like its title
+    onClick: function(btn, map) {       // and its callback
+      overlay.getElement().pause();
+      console.log(overlay.getElement().currentTime);
+      btn.state('play');    // change state on click!
+    }
+  }, {
+    stateName: 'play',
+    icon:      'fa-play',
+    title:     'play video',
+    onClick: function(btn, map) {
+      overlay.getElement().play();
+      btn.state('pause');
+    }
+  }]
 });
 
+stateChangingButton.addTo(map);
+
+// overlay.on('load', function () {
+//     var MyPauseControl = L.Control.extend({
+//         onAdd: function() {
+//             var button = L.DomUtil.create('button');
+//             button.innerHTML = '⏸';
+//             L.DomEvent.on(button, 'click', function () {
+//                 videoOverlay.getElement().pause();
+//             });
+//             return button;
+//         }
+//     });
+//     var MyPlayControl = L.Control.extend({
+//         onAdd: function() {
+//             var button = L.DomUtil.create('button');
+//             button.innerHTML = '⏵';
+//             L.DomEvent.on(button, 'click', function () {
+//                 videoOverlay.getElement().play();
+//             });
+//             return button;
+//         }
+//     });
+
+//     var pauseControl = (new MyPauseControl()).addTo(map);
+//     var playControl = (new MyPlayControl()).addTo(map);
+// });
+
 var rec = L.rectangle([
-  [32, -130],
-  [13, -100]
+  [30.3, -130],
+  [14.9, -100]
 ]).addTo(map);
 rec.enableEdit();
 rec.on('dblclick', L.DomEvent.stop).on('dblclick', rec.toggleEdit);
